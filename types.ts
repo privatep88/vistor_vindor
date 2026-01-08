@@ -1,0 +1,40 @@
+import type React from 'react';
+import type { LucideProps } from 'lucide-react';
+
+export type RecordType = 'visitor' | 'supplier' | 'employee';
+
+export type IdType = 'الهوية الوطنية' | 'رخصة قيادة' | 'جواز سفر' | 'بطاقة عمل' | 'أخرى';
+
+export interface FormDataState {
+  type: RecordType;
+  year: number;
+  location: string;
+  name: string;
+  phone: string;
+  department: string;
+  purpose: string;
+  date: string;
+  timeIn: string;
+  timeOut: string;
+  idType: IdType | string; 
+  notes: string;
+}
+
+export interface Record extends FormDataState {
+  id: string;
+  createdAt?: Date | string; // Adjusted for JSON serialization
+  lastModified?: Date | string;
+}
+
+export type SubmitStatus = 'success' | 'success_offline' | 'updated' | 'error' | null;
+
+export type SortOrder = 'asc' | 'desc';
+
+export interface TableSectionProps {
+  title: string;
+  data: Record[];
+  icon: React.ComponentType<LucideProps>;
+  colorTheme: 'blue' | 'purple' | 'orange';
+  onEdit: (record: Record) => void;
+  onDelete: (id: string) => void;
+}
