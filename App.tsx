@@ -20,14 +20,16 @@ import {
   Calendar as CalendarIcon,
   Trash2,
   FileSpreadsheet,
-  FilePenLine
+  FilePenLine,
+  Mail,
+  FilterX
 } from 'lucide-react';
 
-import { PREDEFINED_LOCATIONS, YEARS, CURRENT_YEAR } from './constants';
-import type { Record, FormDataState, SubmitStatus, SortOrder } from './types';
-import TableSection from './components/TableSection';
-import ConfirmationModal from './components/ConfirmationModal';
-import WelcomeBanner from './components/WelcomeBanner';
+import { PREDEFINED_LOCATIONS, YEARS, CURRENT_YEAR } from './constants.ts';
+import { Record, FormDataState, SubmitStatus, SortOrder } from './types.ts';
+import TableSection from './components/TableSection.tsx';
+import ConfirmationModal from './components/ConfirmationModal.tsx';
+import WelcomeBanner from './components/WelcomeBanner.tsx';
 
 declare global {
   interface Window {
@@ -150,6 +152,13 @@ export default function App() {
     return data;
   }, [records, startDate, endDate, filterLocation, filterYear, sortOrder, searchTerm]);
 
+  const displayRecordCount = useMemo(() => {
+    if (filterYear) {
+      return records.filter(record => String(record.year) === String(filterYear)).length;
+    }
+    return records.length;
+  }, [records, filterYear]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
     if (formErrors[e.target.name]) setFormErrors(prev => ({...prev, [e.target.name]: ''}));
@@ -239,30 +248,60 @@ export default function App() {
           if (!window.XLSX) await loadScript("https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js");
           const data = await file.arrayBuffer(); const wb = window.XLSX.read(data); const ws = wb.Sheets[wb.SheetNames[0]];
           const rows: any[][] = window.XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
-          const headerIndex = rows.findIndex(r => r.includes("الإسم") || r.includes("الاسم"));
-          if (headerIndex === -1) throw new Error("فشل الاستيراد: لم يتم العثور على رؤوس الأعمدة المتوقعة (مثل 'الاسم').");
-          const headers = rows[headerIndex].map(h => String(h).trim()); const dataRows = rows.slice(headerIndex + 1);
+          const headerRowIndex = rows.findIndex(r => r.some(cell => typeof cell === 'string' && (cell.trim() === "الإسم" || cell.trim() === "الاسم")) && r.some(cell => typeof cell === 'string' && cell.trim() === "التاريخ"));
+          if (headerRowIndex === -1) throw new Error("فشل الاستيراد: لم يتم العثور على رؤوس الأعمدة المتوقعة (مثل 'الاسم' و 'التاريخ').");
+          
+          const headers = rows[headerRowIndex].map(h => String(h || '').trim());
+          const dataRows = rows.slice(headerRowIndex + 1);
           if (dataRows.length === 0) throw new Error("فشل الاستيراد: الملف لا يحتوي على أي بيانات صالحة.");
-          const map = { "السنة": "year", "التاريخ": "date", "اسم المقر": "location", "الإسم": "name", "الاسم": "name", "رقم الهاتف": "phone", "الإدارة المتجه اليها": "department", "الغرض": "purpose", "توقيت الدخول": "timeIn", "توقيت الخروج": "timeOut", "اثبات الهوية": "idType", "الملاحظات": "notes" };
-          const indices = Object.fromEntries(Object.entries(map).map(([k, v]) => [v, headers.indexOf(k)]));
-          if (indices.name === -1 || indices.date === -1) throw new Error("فشل الاستيراد: الملف يفتقد لأعمدة أساسية (الاسم أو التاريخ).");
+
+          const headerMap: { [key: string]: keyof FormDataState } = { "السنة": "year", "التاريخ": "date", "اسم المقر": "location", "الإسم": "name", "الاسم": "name", "رقم الهاتف": "phone", "الإدارة المتجه اليها": "department", "الغرض": "purpose", "توقيت الدخول": "timeIn", "توقيت الخروج": "timeOut", "اثبات الهوية": "idType", "الملاحظات": "notes" };
+          const indices: { [key in keyof FormDataState]?: number } = {};
+          Object.entries(headerMap).forEach(([header, modelKey]) => {
+              const index = headers.indexOf(header);
+              if (index > -1) indices[modelKey] = index;
+          });
+          
+          if (indices.name === undefined || indices.date === undefined) throw new Error("فشل الاستيراد: الملف يفتقد لأعمدة أساسية (الاسم أو التاريخ).");
+          
           const excelSerialToJSDate = (s: number) => new Date(Math.round((s - 25569) * 86400 * 1000));
+          
           const importedRecords = dataRows.map((row, i) => {
               const record: Partial<Record> = {};
               for (const key in indices) {
-                  const idx = indices[key as keyof typeof indices]; if (idx !== -1) {
+                  const modelKey = key as keyof typeof indices;
+                  const idx = indices[modelKey];
+                  if (idx !== undefined && row[idx] !== null && row[idx] !== undefined) {
                       let value = row[idx];
-                      if (key === 'date' && typeof value === 'number') value = excelSerialToJSDate(value).toISOString().split('T')[0];
-                      (record as any)[key] = value;
+                      if (modelKey === 'date') {
+                          if (typeof value === 'number' && value > 1) {
+                              value = excelSerialToJSDate(value).toISOString().split('T')[0];
+                          } else if (typeof value === 'string' && !isNaN(Date.parse(value))) {
+                              value = new Date(value).toISOString().split('T')[0];
+                          }
+                      }
+                      (record as any)[modelKey] = String(value);
                   }
               }
               return { ...initialFormState, ...record, id: `imported_${Date.now()}_${i}`, createdAt: new Date() } as Record;
           }).filter(r => r.name && r.date);
+
+          if (importedRecords.length === 0) throw new Error("لم يتم العثور على سجلات صالحة للاستيراد.");
+
           const updatedRecords = [...importedRecords, ...records]; setRecords(updatedRecords);
           localStorage.setItem('visitor_records', JSON.stringify(updatedRecords));
           setImportStatus({ status: 'success', message: `تم استيراد ${importedRecords.length} سجل محلياً بنجاح!` });
       } catch (error: any) { setImportStatus({ status: 'error', message: error.message });
       } finally { if(e.target) e.target.value = ''; setTimeout(() => setImportStatus({ status: 'idle' }), 5000); }
+  };
+
+  const clearFilters = () => {
+    setSearchTerm('');
+    setStartDate('');
+    setEndDate('');
+    setFilterLocation('');
+    setFilterYear('');
+    setSortOrder('desc');
   };
   
   const visitorRecords = filteredRecords.filter(r => r.type === 'visitor');
@@ -309,7 +348,7 @@ export default function App() {
         
         <div className="flex gap-4 mb-6">
           <button onClick={() => setActiveTab('form')} className={`px-6 py-3 rounded-lg font-medium shadow-sm ${activeTab === 'form' ? 'bg-blue-600 text-white' : 'bg-white'}`}>{editingId ? 'تعديل السجل' : 'تسجيل جديد'}</button>
-          <button onClick={() => { if (editingId) cancelEdit(); setActiveTab('list'); }} className={`px-6 py-3 rounded-lg font-medium shadow-sm ${activeTab === 'list' ? 'bg-blue-600 text-white' : 'bg-white'}`}>عرض السجل ({records.length})</button>
+          <button onClick={() => { if (editingId) cancelEdit(); setActiveTab('list'); }} className={`px-6 py-3 rounded-lg font-medium shadow-sm ${activeTab === 'list' ? 'bg-blue-600 text-white' : 'bg-white'}`}>عرض السجل ({displayRecordCount})</button>
         </div>
 
         {activeTab === 'form' && (
@@ -443,6 +482,7 @@ export default function App() {
                 <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={filterInputClasses} />
                 <select value={filterLocation} onChange={(e) => setFilterLocation(e.target.value)} className={filterInputClasses}><option value="">كل المقرات</option>{PREDEFINED_LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}</select>
                 <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value as SortOrder)} className={filterInputClasses}><option value="desc">الأحدث</option><option value="asc">الأقدم</option></select>
+                <button onClick={clearFilters} className={`${filterInputClasses} bg-slate-100 hover:bg-slate-200 flex items-center gap-2`}><FilterX className="w-4 h-4 text-slate-500" /> مسح</button>
               </div>
             </div>
             <TableSection title="سجل الزوار" data={visitorRecords} icon={Users} colorTheme="blue" onEdit={startEdit} onDelete={setRecordToDelete} />
@@ -453,11 +493,55 @@ export default function App() {
       </main>
 
       <footer className="bg-slate-900 text-slate-400 py-6 mt-auto border-t border-slate-700">
-        <div className="container mx-auto px-4 text-center">
-            <p className="text-sm mb-2 text-white">إعداد وتصميم / خالد الجفري</p>
-            <p className="text-sm">جميع الحقوق محفوظة لشركة ساهر للخدمات الذكية {new Date().getFullYear()} ©</p>
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-right">
+            
+            <div>
+              <h3 className="text-base font-semibold text-slate-300 tracking-wider uppercase">عن SAHER</h3>
+              <div className="w-12 h-0.5 bg-yellow-400 mt-1 mb-2"></div>
+              <p className="text-sm leading-relaxed">
+                شركة رائدة في تقديم الحلول والأنظمة الذكية، ملتزمون بالابتكار والجودة لتحقيق أعلى مستويات الكفاءة والخدمات الذكية.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="text-base font-semibold text-slate-300 tracking-wider uppercase">روابط سريعة</h3>
+              <div className="w-12 h-0.5 bg-yellow-400 mt-1 mb-2"></div>
+              <ul className="space-y-1 text-sm">
+                <li><a href="#" className="hover:text-white transition-colors">الرئيسية</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">خدماتنا</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">تواصل معنا</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-base font-semibold text-slate-300 tracking-wider uppercase">تواصل معنا</h3>
+              <div className="w-12 h-0.5 bg-yellow-400 mt-1 mb-2"></div>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-start justify-start gap-3">
+                  <p className="text-sm" dir="ltr">Level 3, Baynona Building, Khalif City A</p>
+                  <MapPin className="w-5 h-5 text-slate-500 mt-1 flex-shrink-0" />
+                </li>
+                <li className="flex items-center justify-start gap-3">
+                  <a href="tel:+97141234567" className="hover:text-white transition-colors" dir="ltr">+971 4 123 4567</a>
+                  <Phone className="w-5 h-5 text-slate-500" />
+                </li>
+                <li className="flex items-center justify-start gap-3">
+                  <a href="mailto:Logistic@saher.ae" className="hover:text-white transition-colors">Logistic@saher.ae</a>
+                  <Mail className="w-5 h-5 text-slate-500" />
+                </li>
+              </ul>
+            </div>
+
+          </div>
+          
+          <div className="border-t border-slate-700 mt-6 pt-4 text-center">
+            <p className="text-sm mb-1 text-white">اعداد وتصميم / خالد الجفري</p>
+            <p className="text-xs">جميع الحقوق محفوظة لـ © 2026 SAHER FOR SMART SERVICES</p>
+          </div>
         </div>
       </footer>
+
 
       <ConfirmationModal
         isOpen={!!recordToDelete}

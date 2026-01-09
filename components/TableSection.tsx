@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
-import type { TableSectionProps, Record } from '../types';
+import { TableSectionProps, Record } from '../types.ts';
 
 const TableSection: React.FC<TableSectionProps> = ({ title, data, icon: Icon, colorTheme, onEdit, onDelete }) => {
     const themeClasses = {
@@ -45,29 +45,29 @@ const TableSection: React.FC<TableSectionProps> = ({ title, data, icon: Icon, co
                 data.map((record: Record, idx: number) => {
                   const dayName = new Date(record.date).toLocaleDateString('ar-AE', { weekday: 'long' });
                   return (
-                    <tr key={record.id} className="hover:bg-slate-50 transition-all duration-200 ease-in-out hover:shadow-lg hover:-translate-y-px text-sm group">
-                      <td className="px-4 py-6 whitespace-nowrap">
+                    <tr key={record.id} className="hover:bg-slate-50 transition-colors duration-150 text-sm group">
+                      <td className="px-4 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
                            <button onClick={() => onEdit(record)} className="text-slate-500 hover:text-blue-600 hover:bg-blue-100 p-2 rounded-full transition-all" title="تعديل السجل"><Pencil className="w-4 h-4" /></button>
                            <button onClick={() => onDelete(record.id)} className="text-slate-500 hover:text-red-600 hover:bg-red-100 p-2 rounded-full transition-all" title="حذف السجل"><Trash2 className="w-4 h-4" /></button>
                         </div>
                       </td>
-                      <td className="px-4 py-6 whitespace-nowrap text-slate-500" dir="ltr">{idx + 1}</td>
-                      <td className="px-4 py-6 whitespace-nowrap text-black" dir="ltr">{record.year || new Date(record.date).getFullYear()}</td>
-                      <td className="px-4 py-6 whitespace-nowrap text-black" dir="ltr">{record.date}</td>
-                      <td className="px-4 py-6 whitespace-nowrap text-black">{dayName}</td>
-                      <td className="px-4 py-6 whitespace-nowrap text-black">{typeof record.location === 'string' ? record.location : ''}</td>
-                      <td className="px-4 py-6 whitespace-nowrap font-medium text-black">{record.name}</td>
-                      <td className="px-4 py-6 whitespace-nowrap text-black" dir="ltr">{record.phone}</td>
-                      <td className="px-4 py-6 whitespace-nowrap text-black">{record.department}</td>
-                      <td className="px-4 py-6 whitespace-nowrap text-black">{record.purpose}</td>
-                      <td className="px-4 py-6 whitespace-nowrap text-black">{record.idType}</td>
-                      <td className="px-4 py-6 whitespace-nowrap" dir="ltr">
+                      <td className="px-4 py-4 whitespace-nowrap text-slate-500" dir="ltr">{idx + 1}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-black" dir="ltr">{record.year || new Date(record.date).getFullYear()}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-black" dir="ltr">{record.date}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-black">{dayName}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-black">{typeof record.location === 'string' ? record.location : ''}</td>
+                      <td className="px-4 py-4 whitespace-nowrap font-medium text-black">{record.name}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-black" dir="ltr">{record.phone}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-black">{record.department}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-black">{record.purpose}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-black">{record.idType}</td>
+                      <td className="px-4 py-4 whitespace-nowrap" dir="ltr">
                         <span className="text-green-600 font-medium">{record.timeIn}</span> 
                         {record.timeOut && <span className="text-slate-400 mx-1">➜</span>}
                         {record.timeOut && <span className="text-red-600 font-medium">{record.timeOut}</span>}
                       </td>
-                      <td className="px-4 py-6 whitespace-nowrap text-black max-w-xs truncate" title=""></td>
+                      <td className="px-4 py-4 whitespace-nowrap text-black max-w-xs truncate" title={record.notes}>{record.notes}</td>
                     </tr>
                   );
                 })

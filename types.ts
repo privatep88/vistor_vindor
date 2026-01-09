@@ -1,5 +1,5 @@
-import type React from 'react';
-import type { LucideProps } from 'lucide-react';
+import React from 'react';
+import { LucideProps } from 'lucide-react';
 
 export type RecordType = 'visitor' | 'supplier' | 'employee';
 
