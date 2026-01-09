@@ -37,4 +37,6 @@ export interface TableSectionProps {
   colorTheme: 'blue' | 'purple' | 'orange';
   onEdit: (record: Record) => void;
   onDelete: (id: string) => void;
+  sortOrder: SortOrder;
+  onSortChange: () => void;
 }

@@ -25,7 +25,7 @@ import {
   FilterX
 } from 'lucide-react';
 
-import { PREDEFINED_LOCATIONS, YEARS, CURRENT_YEAR } from './constants.ts';
+import { PREDEFINED_LOCATIONS, YEARS, CURRENT_YEAR, MONTHS } from './constants.ts';
 import { Record, FormDataState, SubmitStatus, SortOrder } from './types.ts';
 import TableSection from './components/TableSection.tsx';
 import ConfirmationModal from './components/ConfirmationModal.tsx';
@@ -53,20 +53,20 @@ const loadScript = (src: string): Promise<void> => {
 
 const demoRecords: Record[] = [
     // Visitors
-    { id: 'demo_v1', type: 'visitor', year: CURRENT_YEAR, location: PREDEFINED_LOCATIONS[0], name: 'أحمد محمد', phone: '0501234567', department: 'الإدارة المالية', purpose: 'اجتماع عمل', date: '2024-05-21', timeIn: '09:15', timeOut: '10:30', idType: 'الهوية الوطنية', notes: 'اجتماع بخصوص الميزانية', createdAt: new Date() },
-    { id: 'demo_v2', type: 'visitor', year: CURRENT_YEAR, location: PREDEFINED_LOCATIONS[2], name: 'فاطمة علي', phone: '0567654321', department: 'الموارد البشرية', purpose: 'مقابلة وظيفية', date: '2024-05-22', timeIn: '11:00', timeOut: '11:45', idType: 'جواز سفر', notes: 'مرشحة لوظيفة مصمم', createdAt: new Date() },
-    { id: 'demo_v3', type: 'visitor', year: CURRENT_YEAR, location: PREDEFINED_LOCATIONS[1], name: 'يوسف حسن', phone: '0551122334', department: 'الشؤون القانونية', purpose: 'تسليم مستندات', date: '2024-05-22', timeIn: '14:00', timeOut: '14:10', idType: 'رخصة قيادة', notes: '', createdAt: new Date() },
-    { id: 'demo_v4', type: 'visitor', year: CURRENT_YEAR, location: PREDEFINED_LOCATIONS[0], name: 'سارة خالد', phone: '0523344556', department: 'الموارد البشرية', purpose: 'زيارة', date: '2024-05-23', timeIn: '10:00', timeOut: '', idType: 'الهوية الوطنية', notes: 'استفسار عن خدمات الموظفين', createdAt: new Date() },
+    { id: 'demo_v1', type: 'visitor', year: CURRENT_YEAR, location: PREDEFINED_LOCATIONS[0], name: 'أحمد محمد', phone: '0501234567', department: 'الإدارة المالية', purpose: 'اجتماع عمل', date: `${CURRENT_YEAR}-05-21`, timeIn: '09:15', timeOut: '10:30', idType: 'الهوية الوطنية', notes: 'اجتماع بخصوص الميزانية', createdAt: new Date() },
+    { id: 'demo_v2', type: 'visitor', year: CURRENT_YEAR, location: PREDEFINED_LOCATIONS[2], name: 'فاطمة علي', phone: '0567654321', department: 'الموارد البشرية', purpose: 'مقابلة وظيفية', date: `${CURRENT_YEAR}-05-22`, timeIn: '11:00', timeOut: '11:45', idType: 'جواز سفر', notes: 'مرشحة لوظيفة مصمم', createdAt: new Date() },
+    { id: 'demo_v3', type: 'visitor', year: CURRENT_YEAR, location: PREDEFINED_LOCATIONS[1], name: 'يوسف حسن', phone: '0551122334', department: 'الشؤون القانونية', purpose: 'تسليم مستندات', date: `${CURRENT_YEAR}-05-22`, timeIn: '14:00', timeOut: '14:10', idType: 'رخصة قيادة', notes: '', createdAt: new Date() },
+    { id: 'demo_v4', type: 'visitor', year: CURRENT_YEAR, location: PREDEFINED_LOCATIONS[0], name: 'سارة خالد', phone: '0523344556', department: 'الموارد البشرية', purpose: 'زيارة', date: `${CURRENT_YEAR}-05-23`, timeIn: '10:00', timeOut: '', idType: 'الهوية الوطنية', notes: 'استفسار عن خدمات الموظفين', createdAt: new Date() },
     // Suppliers
-    { id: 'demo_s1', type: 'supplier', year: CURRENT_YEAR, location: PREDEFINED_LOCATIONS[0], name: 'شركة النور للتوريدات (مندوب: علي)', phone: '0509876543', department: 'قسم المشتريات', purpose: 'توريد أجهزة مكتبية', date: '2024-05-21', timeIn: '10:00', timeOut: '10:20', idType: 'بطاقة عمل', notes: 'توريد عدد 5 طابعات', createdAt: new Date() },
-    { id: 'demo_s2', type: 'supplier', year: CURRENT_YEAR, location: PREDEFINED_LOCATIONS[2], name: 'مطبعة المستقبل (مندوب: هدى)', phone: '0561237890', department: 'قسم التسويق', purpose: 'تسليم مطبوعات', date: '2024-05-21', timeIn: '15:30', timeOut: '15:45', idType: 'بطاقة عمل', notes: 'بروشورات و بطاقات عمل', createdAt: new Date() },
-    { id: 'demo_s3', type: 'supplier', year: CURRENT_YEAR, location: PREDEFINED_LOCATIONS[1], name: 'خدمات الصيانة السريعة (فني: عمر)', phone: '0558765432', department: 'قسم الصيانة', purpose: 'صيانة دورية', date: '2024-05-22', timeIn: '09:00', timeOut: '11:00', idType: 'بطاقة عمل', notes: 'صيانة وحدات التكييف', createdAt: new Date() },
-    { id: 'demo_s4', type: 'supplier', year: CURRENT_YEAR, location: PREDEFINED_LOCATIONS[3], name: 'مورد أغذية (مندوب: ليلى)', phone: '0523456789', department: 'الكافتيريا', purpose: 'توصيل طلبية', date: '2024-05-23', timeIn: '08:30', timeOut: '08:45', idType: 'أخرى', notes: '', createdAt: new Date() },
+    { id: 'demo_s1', type: 'supplier', year: CURRENT_YEAR, location: PREDEFINED_LOCATIONS[0], name: 'شركة النور للتوريدات (مندوب: علي)', phone: '0509876543', department: 'قسم المشتريات', purpose: 'توريد أجهزة مكتبية', date: `${CURRENT_YEAR}-05-21`, timeIn: '10:00', timeOut: '10:20', idType: 'بطاقة عمل', notes: 'توريد عدد 5 طابعات', createdAt: new Date() },
+    { id: 'demo_s2', type: 'supplier', year: CURRENT_YEAR, location: PREDEFINED_LOCATIONS[2], name: 'مطبعة المستقبل (مندوب: هدى)', phone: '0561237890', department: 'قسم التسويق', purpose: 'تسليم مطبوعات', date: `${CURRENT_YEAR}-05-21`, timeIn: '15:30', timeOut: '15:45', idType: 'بطاقة عمل', notes: 'بروشورات و بطاقات عمل', createdAt: new Date() },
+    { id: 'demo_s3', type: 'supplier', year: CURRENT_YEAR, location: PREDEFINED_LOCATIONS[1], name: 'خدمات الصيانة السريعة (فني: عمر)', phone: '0558765432', department: 'قسم الصيانة', purpose: 'صيانة دورية', date: `${CURRENT_YEAR}-05-22`, timeIn: '09:00', timeOut: '11:00', idType: 'بطاقة عمل', notes: 'صيانة وحدات التكييف', createdAt: new Date() },
+    { id: 'demo_s4', type: 'supplier', year: CURRENT_YEAR, location: PREDEFINED_LOCATIONS[3], name: 'مورد أغذية (مندوب: ليلى)', phone: '0523456789', department: 'الكافتيريا', purpose: 'توصيل طلبية', date: `${CURRENT_YEAR}-05-23`, timeIn: '08:30', timeOut: '08:45', idType: 'أخرى', notes: '', createdAt: new Date() },
     // Employees
-    { id: 'demo_e1', type: 'employee', year: CURRENT_YEAR, location: PREDEFINED_LOCATIONS[0], name: 'عبدالله سالم', phone: '', department: 'تقنية المعلومات', purpose: 'نسيان بطاقة الدخول', date: '2024-05-21', timeIn: '08:05', timeOut: '', idType: 'الهوية الوطنية', notes: '', createdAt: new Date() },
-    { id: 'demo_e2', type: 'employee', year: CURRENT_YEAR, location: PREDEFINED_LOCATIONS[2], name: 'مريم سعيد', phone: '', department: 'التصميم', purpose: 'موظف جديد', date: '2024-05-22', timeIn: '08:50', timeOut: '', idType: 'الهوية الوطنية', notes: 'بدون تصريح دخول بعد', createdAt: new Date() },
-    { id: 'demo_e3', type: 'employee', year: CURRENT_YEAR, location: PREDEFINED_LOCATIONS[1], name: 'خالد العامري', phone: '', department: 'المبيعات', purpose: 'زيارة قسم آخر', date: '2024-05-22', timeIn: '13:20', timeOut: '', idType: 'بطاقة عمل', notes: '', createdAt: new Date() },
-    { id: 'demo_e4', type: 'employee', year: CURRENT_YEAR, location: PREDEFINED_LOCATIONS[2], name: 'نورة المنصوري', phone: '', department: 'خدمة العملاء', purpose: 'نسيان بطاقة الدخول', date: '2024-05-23', timeIn: '08:10', timeOut: '', idType: 'الهوية الوطنية', notes: '', createdAt: new Date() },
+    { id: 'demo_e1', type: 'employee', year: CURRENT_YEAR, location: PREDEFINED_LOCATIONS[0], name: 'عبدالله سالم', phone: '', department: 'تقنية المعلومات', purpose: 'نسيان بطاقة الدخول', date: `${CURRENT_YEAR}-05-21`, timeIn: '08:05', timeOut: '', idType: 'الهوية الوطنية', notes: '', createdAt: new Date() },
+    { id: 'demo_e2', type: 'employee', year: CURRENT_YEAR, location: PREDEFINED_LOCATIONS[2], name: 'مريم سعيد', phone: '', department: 'التصميم', purpose: 'موظف جديد', date: `${CURRENT_YEAR}-05-22`, timeIn: '08:50', timeOut: '', idType: 'الهوية الوطنية', notes: 'بدون تصريح دخول بعد', createdAt: new Date() },
+    { id: 'demo_e3', type: 'employee', year: CURRENT_YEAR, location: PREDEFINED_LOCATIONS[1], name: 'خالد العامري', phone: '', department: 'المبيعات', purpose: 'زيارة قسم آخر', date: `${CURRENT_YEAR}-05-22`, timeIn: '13:20', timeOut: '', idType: 'بطاقة عمل', notes: '', createdAt: new Date() },
+    { id: 'demo_e4', type: 'employee', year: CURRENT_YEAR, location: PREDEFINED_LOCATIONS[2], name: 'نورة المنصوري', phone: '', department: 'خدمة العملاء', purpose: 'نسيان بطاقة الدخول', date: `${CURRENT_YEAR}-05-23`, timeIn: '08:10', timeOut: '', idType: 'الهوية الوطنية', notes: '', createdAt: new Date() },
 ];
 
 
@@ -85,9 +85,11 @@ export default function App() {
   const [endDate, setEndDate] = useState<string>('');
   const [filterLocation, setFilterLocation] = useState<string>(''); 
   const [filterYear, setFilterYear] = useState<string>(''); 
+  const [filterMonth, setFilterMonth] = useState<string>('');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
   const [searchTerm, setSearchTerm] = useState<string>(''); 
   const [showWelcomeBanner, setShowWelcomeBanner] = useState<boolean>(false);
+  const isInitialMount = useRef(true);
 
   const initialFormState: FormDataState = {
     type: 'visitor', year: CURRENT_YEAR, location: '', name: '', phone: '',
@@ -125,6 +127,14 @@ export default function App() {
     }
   }, []);
 
+  useEffect(() => {
+    if (isInitialMount.current) {
+        isInitialMount.current = false;
+    } else {
+        setSortOrder('desc');
+    }
+  }, [filterYear]);
+
   const handleDismissBanner = () => {
     setShowWelcomeBanner(false);
     sessionStorage.setItem('welcomeBannerDismissed', 'true');
@@ -136,6 +146,7 @@ export default function App() {
     if (endDate) data = data.filter(record => record.date <= endDate);
     if (filterLocation) data = data.filter(record => record.location === filterLocation);
     if (filterYear) data = data.filter(record => String(record.year) === String(filterYear));
+    if (filterMonth) data = data.filter(record => record.date.substring(5, 7) === filterMonth);
     if (searchTerm) {
       const lowerSearch = searchTerm.toLowerCase();
       data = data.filter(record => Object.values(record).some(val => String(val).toLowerCase().includes(lowerSearch)));
@@ -150,14 +161,7 @@ export default function App() {
       return sortOrder === 'asc' ? timeA - timeB : timeB - timeA;
     });
     return data;
-  }, [records, startDate, endDate, filterLocation, filterYear, sortOrder, searchTerm]);
-
-  const displayRecordCount = useMemo(() => {
-    if (filterYear) {
-      return records.filter(record => String(record.year) === String(filterYear)).length;
-    }
-    return records.length;
-  }, [records, filterYear]);
+  }, [records, startDate, endDate, filterLocation, filterYear, filterMonth, sortOrder, searchTerm]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -193,24 +197,35 @@ export default function App() {
     if (!validateForm()) return;
 
     const now = new Date();
-    const updatedRecord = { ...formData, id: editingId || `local_${now.getTime()}`, createdAt: editingId ? (records.find(r=>r.id===editingId)?.createdAt || now) : now };
+    let finalRecord: Record;
+
+    if (editingId) {
+        const originalRecord = records.find(r => r.id === editingId);
+        finalRecord = {
+            ...formData,
+            id: editingId,
+            createdAt: originalRecord?.createdAt || now,
+            lastModified: now
+        };
+    } else {
+        finalRecord = {
+            ...formData,
+            id: `local_${now.getTime()}`,
+            createdAt: now
+        };
+    }
     
     const newRecords = editingId 
-      ? records.map(rec => rec.id === editingId ? updatedRecord : rec) 
-      : [updatedRecord, ...records];
+      ? records.map(rec => (rec.id === editingId ? finalRecord : rec)) 
+      : [finalRecord, ...records];
       
     setRecords(newRecords);
     localStorage.setItem('visitor_records', JSON.stringify(newRecords));
     setSubmitStatus(editingId ? 'updated' : 'success_offline');
 
-    if (editingId) {
-      setFormData(initialFormState);
-      setTouched({});
-      setEditingId(null);
-    } else {
-      setFormData(initialFormState);
-      setTouched({});
-    }
+    setFormData(initialFormState);
+    setTouched({});
+    setEditingId(null);
     
     setTimeout(() => setSubmitStatus(null), 3000);
   };
@@ -222,21 +237,44 @@ export default function App() {
     localStorage.setItem('visitor_records', JSON.stringify(newRecords));
     setRecordToDelete(null);
   };
+  
+  const handleSortChange = () => {
+    setSortOrder(prev => (prev === 'desc' ? 'asc' : 'desc'));
+  };
 
   const handleExportExcel = () => {
-    if (!window.XLSX || !xlsxLoaded) return;
-    const sheetData = (typeRecords: Record[]) => {
-      const headers = ["م", "السنة", "التاريخ", "اليوم", "اسم المقر", "الإسم", "رقم الهاتف", "الإدارة المتجه اليها", "الغرض", "توقيت الدخول", "توقيت الخروج", "اثبات الهوية", "الملاحظات"];
-      return [headers, ...typeRecords.map((rec, i) => [i + 1, rec.year, rec.date, new Date(rec.date).toLocaleDateString('ar-AE', { weekday: 'long' }), rec.location, rec.name, rec.phone, rec.department, rec.purpose, rec.timeIn, rec.timeOut, rec.idType, rec.notes])];
-    };
-    const visitorData = sheetData(filteredRecords.filter(r => r.type === 'visitor'));
-    const supplierData = sheetData(filteredRecords.filter(r => r.type === 'supplier'));
-    const employeeData = sheetData(filteredRecords.filter(r => r.type === 'employee'));
+    if (!window.XLSX || !xlsxLoaded) {
+      alert("مكتبة التصدير لم يتم تحميلها بعد.");
+      return;
+    }
+
     const wb = window.XLSX.utils.book_new();
-    const ws = window.XLSX.utils.aoa_to_sheet([["سجل الزوار والموردين"], [], ...visitorData, [], ["سجل الموردين"], ...supplierData, [], ["سجل الموظفين"], ...employeeData]);
-    ws['!cols'] = Array(13).fill({ wch: 20 });
-    window.XLSX.utils.book_append_sheet(wb, ws, "السجل");
-    window.XLSX.writeFile(wb, `سجل_الزوار_${new Date().toISOString().split('T')[0]}.xlsx`);
+    const fileName = `سجل_الزوار_${new Date().toISOString().split('T')[0]}.xlsx`;
+    
+    const headers = ["م", "السنة", "التاريخ", "اليوم", "اسم المقر", "الإسم", "رقم الهاتف", "الإدارة المتجه اليها", "الغرض", "توقيت الدخول", "توقيت الخروج", "اثبات الهوية", "الملاحظات"];
+    
+    const createSheet = (data: Record[], sheetName: string) => {
+        const sheetData = data.map((rec, i) => [
+            i + 1, rec.year, rec.date, new Date(rec.date).toLocaleDateString('ar-AE', { weekday: 'long' }), 
+            rec.location, rec.name, rec.phone, rec.department, rec.purpose, rec.timeIn, rec.timeOut, 
+            rec.idType, rec.notes
+        ]);
+
+        const finalSheetData = [headers, ...sheetData];
+        const ws = window.XLSX.utils.aoa_to_sheet(finalSheetData);
+        ws['!cols'] = Array(headers.length).fill({ wch: 20 });
+        window.XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    };
+
+    if (visitorRecords.length > 0) createSheet(visitorRecords, "الزوار");
+    if (supplierRecords.length > 0) createSheet(supplierRecords, "الموردين");
+    if (employeeRecords.length > 0) createSheet(employeeRecords, "الموظفين");
+
+    if (wb.SheetNames.length > 0) {
+        window.XLSX.writeFile(wb, fileName);
+    } else {
+        alert("لا توجد بيانات للتصدير بناءً على الفلاتر المحددة.");
+    }
   };
   
   const handleImportClick = () => fileInputRef.current?.click();
@@ -273,12 +311,8 @@ export default function App() {
                   const idx = indices[modelKey];
                   if (idx !== undefined && row[idx] !== null && row[idx] !== undefined) {
                       let value = row[idx];
-                      if (modelKey === 'date') {
-                          if (typeof value === 'number' && value > 1) {
-                              value = excelSerialToJSDate(value).toISOString().split('T')[0];
-                          } else if (typeof value === 'string' && !isNaN(Date.parse(value))) {
-                              value = new Date(value).toISOString().split('T')[0];
-                          }
+                      if (modelKey === 'date' && typeof value === 'number' && value > 1) {
+                        value = excelSerialToJSDate(value).toISOString().split('T')[0];
                       }
                       (record as any)[modelKey] = String(value);
                   }
@@ -301,6 +335,7 @@ export default function App() {
     setEndDate('');
     setFilterLocation('');
     setFilterYear('');
+    setFilterMonth('');
     setSortOrder('desc');
   };
   
@@ -348,7 +383,7 @@ export default function App() {
         
         <div className="flex gap-4 mb-6">
           <button onClick={() => setActiveTab('form')} className={`px-6 py-3 rounded-lg font-medium shadow-sm ${activeTab === 'form' ? 'bg-blue-600 text-white' : 'bg-white'}`}>{editingId ? 'تعديل السجل' : 'تسجيل جديد'}</button>
-          <button onClick={() => { if (editingId) cancelEdit(); setActiveTab('list'); }} className={`px-6 py-3 rounded-lg font-medium shadow-sm ${activeTab === 'list' ? 'bg-blue-600 text-white' : 'bg-white'}`}>عرض السجل ({displayRecordCount})</button>
+          <button onClick={() => { if (editingId) cancelEdit(); setActiveTab('list'); }} className={`px-6 py-3 rounded-lg font-medium shadow-sm ${activeTab === 'list' ? 'bg-blue-600 text-white' : 'bg-white'}`}>عرض السجل ({filteredRecords.length})</button>
         </div>
 
         {activeTab === 'form' && (
@@ -478,16 +513,19 @@ export default function App() {
               <div className="flex flex-wrap gap-4 items-center">
                 <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="بحث..." className={filterInputClasses} />
                 <select value={filterYear} onChange={(e) => setFilterYear(e.target.value)} className={filterInputClasses}><option value="">كل السنوات</option>{YEARS.map(y => <option key={y} value={y}>{y}</option>)}</select>
+                <select value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)} className={filterInputClasses}>
+                  <option value="">كل الشهور</option>
+                  {MONTHS.map(m => <option key={m.value} value={m.value}>{m.name}</option>)}
+                </select>
                 <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className={filterInputClasses} />
                 <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={filterInputClasses} />
                 <select value={filterLocation} onChange={(e) => setFilterLocation(e.target.value)} className={filterInputClasses}><option value="">كل المقرات</option>{PREDEFINED_LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}</select>
-                <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value as SortOrder)} className={filterInputClasses}><option value="desc">الأحدث</option><option value="asc">الأقدم</option></select>
                 <button onClick={clearFilters} className={`${filterInputClasses} bg-slate-100 hover:bg-slate-200 flex items-center gap-2`}><FilterX className="w-4 h-4 text-slate-500" /> مسح</button>
               </div>
             </div>
-            <TableSection title="سجل الزوار" data={visitorRecords} icon={Users} colorTheme="blue" onEdit={startEdit} onDelete={setRecordToDelete} />
-            <TableSection title="سجل الموردين" data={supplierRecords} icon={Truck} colorTheme="purple" onEdit={startEdit} onDelete={setRecordToDelete} />
-            <TableSection title="سجل الموظفين (بدون تصريح)" data={employeeRecords} icon={UserCog} colorTheme="orange" onEdit={startEdit} onDelete={setRecordToDelete} />
+            <TableSection title="سجل الزوار" data={visitorRecords} icon={Users} colorTheme="blue" onEdit={startEdit} onDelete={setRecordToDelete} sortOrder={sortOrder} onSortChange={handleSortChange} />
+            <TableSection title="سجل الموردين" data={supplierRecords} icon={Truck} colorTheme="purple" onEdit={startEdit} onDelete={setRecordToDelete} sortOrder={sortOrder} onSortChange={handleSortChange} />
+            <TableSection title="سجل الموظفين (بدون تصريح)" data={employeeRecords} icon={UserCog} colorTheme="orange" onEdit={startEdit} onDelete={setRecordToDelete} sortOrder={sortOrder} onSortChange={handleSortChange} />
           </div>
         )}
       </main>
@@ -497,17 +535,15 @@ export default function App() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-right">
             
             <div>
-              <h3 className="text-base font-semibold text-slate-300 tracking-wider uppercase">عن SAHER</h3>
-              <div className="w-12 h-0.5 bg-yellow-400 mt-1 mb-2"></div>
-              <p className="text-sm leading-relaxed">
+              <h3 className="inline-block text-base font-semibold text-slate-300 tracking-wider uppercase pb-1 border-b-2 border-yellow-400">عن SAHER</h3>
+              <p className="text-sm leading-relaxed mt-3">
                 شركة رائدة في تقديم الحلول والأنظمة الذكية، ملتزمون بالابتكار والجودة لتحقيق أعلى مستويات الكفاءة والخدمات الذكية.
               </p>
             </div>
 
             <div>
-              <h3 className="text-base font-semibold text-slate-300 tracking-wider uppercase">روابط سريعة</h3>
-              <div className="w-12 h-0.5 bg-yellow-400 mt-1 mb-2"></div>
-              <ul className="space-y-1 text-sm">
+              <h3 className="inline-block text-base font-semibold text-slate-300 tracking-wider uppercase pb-1 border-b-2 border-yellow-400">روابط سريعة</h3>
+              <ul className="space-y-1 text-sm mt-3">
                 <li><a href="#" className="hover:text-white transition-colors">الرئيسية</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">خدماتنا</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">تواصل معنا</a></li>
@@ -515,20 +551,19 @@ export default function App() {
             </div>
 
             <div>
-              <h3 className="text-base font-semibold text-slate-300 tracking-wider uppercase">تواصل معنا</h3>
-              <div className="w-12 h-0.5 bg-yellow-400 mt-1 mb-2"></div>
-              <ul className="space-y-2 text-sm">
+              <h3 className="inline-block text-base font-semibold text-slate-300 tracking-wider uppercase pb-1 border-b-2 border-yellow-400">تواصل معنا</h3>
+              <ul className="space-y-2 text-sm mt-3">
                 <li className="flex items-start justify-start gap-3">
-                  <p className="text-sm" dir="ltr">Level 3, Baynona Building, Khalif City A</p>
                   <MapPin className="w-5 h-5 text-slate-500 mt-1 flex-shrink-0" />
+                  <p className="text-sm" dir="ltr">Level 3, Baynona Building, Khalif City A</p>
                 </li>
                 <li className="flex items-center justify-start gap-3">
-                  <a href="tel:+97141234567" className="hover:text-white transition-colors" dir="ltr">+971 4 123 4567</a>
                   <Phone className="w-5 h-5 text-slate-500" />
+                  <a href="tel:+97141234567" className="hover:text-white transition-colors" dir="ltr">+971 4 123 4567</a>
                 </li>
                 <li className="flex items-center justify-start gap-3">
-                  <a href="mailto:Logistic@saher.ae" className="hover:text-white transition-colors">Logistic@saher.ae</a>
                   <Mail className="w-5 h-5 text-slate-500" />
+                  <a href="mailto:Logistic@saher.ae" className="hover:text-white transition-colors">Logistic@saher.ae</a>
                 </li>
               </ul>
             </div>
