@@ -4,46 +4,60 @@ import { TableSectionProps, Record } from '../types.ts';
 
 const TableSection: React.FC<TableSectionProps> = ({ title, data, icon: Icon, colorTheme, onEdit, onDelete, sortOrder, onSortChange }) => {
     const themeClasses = {
-      blue: "bg-blue-50 border-blue-200 text-blue-800",
-      purple: "bg-purple-50 border-purple-200 text-purple-800",
-      orange: "bg-orange-50 border-orange-200 text-orange-800"
+      navy: "bg-[#091526] border-b-4 border-[#eab308] text-white",   // Updated to #091526 (Project Navy)
+      teal: "bg-[#134e4a] border-b-4 border-[#eab308] text-white",   // Deep Teal (Teal 900)
+      maroon: "bg-[#881337] border-b-4 border-[#eab308] text-white", // Deep Maroon (Rose 900)
+      brown: "bg-[#ab9c88] border-b-4 border-[#eab308] text-white",   // Custom Brown
+      purple: "bg-[#413c4a] border-b-4 border-[#eab308] text-white",   // Custom Purple
+      orange: "bg-[#532703] border-b-4 border-[#eab308] text-white",    // Custom Orange (Dark)
+      grey: "bg-[#7c7c7b] border-b-4 border-[#eab308] text-white"      // Custom Grey
+    };
+
+    const iconBgClasses = {
+      navy: "bg-white/10 text-[#eab308]",
+      teal: "bg-white/10 text-[#eab308]",
+      maroon: "bg-white/10 text-[#eab308]",
+      brown: "bg-white/20 text-[#eab308]",
+      purple: "bg-white/10 text-[#eab308]",
+      orange: "bg-white/10 text-[#eab308]",
+      grey: "bg-white/10 text-[#eab308]"
     };
 
     return (
       <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-slate-200 mb-8 animate-fadeIn">
-        <div className={`px-6 py-4 border-b border-slate-200 flex items-center justify-between ${themeClasses[colorTheme] || "bg-slate-100"}`}>
+        <div className={`px-6 py-4 flex items-center justify-between ${themeClasses[colorTheme] || "bg-slate-100"}`}>
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-white/70 rounded-lg shadow-sm">
+            <div className={`p-2 rounded-lg shadow-sm ${iconBgClasses[colorTheme] || "bg-white/20"}`}>
               <Icon className="w-5 h-5" />
             </div>
-            <h3 className="font-bold text-lg">{title} <span className="text-sm opacity-75">({data.length} سجل)</span></h3>
+            <h3 className="font-bold text-lg">{title} <span className="text-sm opacity-75 font-normal mx-1">({data.length} سجل)</span></h3>
           </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
-            <thead className="bg-slate-50 border-b border-slate-200">
+            <thead className="bg-[#334155] border-b border-slate-700">
               <tr>
-                <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap w-24 text-center">إجراءات</th>
-                <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap w-12 text-center">م</th>
-                <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap text-center">
-                   <button onClick={onSortChange} className="flex items-center justify-center mx-auto gap-1 group hover:text-slate-800 transition-colors">
+                <th className="px-4 py-3 text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap w-24 text-center">إجراءات</th>
+                <th className="px-4 py-3 text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap w-12 text-center">م</th>
+                <th className="px-4 py-3 text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap text-center">
+                   <button onClick={onSortChange} className="flex items-center justify-center mx-auto gap-1 group hover:text-[#eab308] transition-colors">
                     <span>التاريخ</span>
                     {sortOrder === 'desc' ? (
-                      <ArrowDown className="w-4 h-4 text-slate-600" />
+                      <ArrowDown className="w-4 h-4 text-slate-300 group-hover:text-[#eab308]" />
                     ) : (
-                      <ArrowUp className="w-4 h-4 text-slate-600" />
+                      <ArrowUp className="w-4 h-4 text-slate-300 group-hover:text-[#eab308]" />
                     )}
                   </button>
                 </th>
-                <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap text-center">اليوم</th>
-                <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap text-center">المقر</th>
-                <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap text-center">الاسم</th>
-                <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap text-center">الهاتف</th>
-                <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap text-center">الإدارة</th>
-                <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap text-center">الغرض</th>
-                <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap text-center">إثبات الهوية</th>
-                <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap text-center">التوقيت</th>
-                <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap text-center">الملاحظات</th>
+                <th className="px-4 py-3 text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap text-center">اليوم</th>
+                <th className="px-4 py-3 text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap text-center">المقر</th>
+                <th className="px-4 py-3 text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap text-center">الاسم</th>
+                <th className="px-4 py-3 text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap text-center">الهاتف</th>
+                <th className="px-4 py-3 text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap text-center">الإدارة</th>
+                <th className="px-4 py-3 text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap text-center">الغرض</th>
+                <th className="px-4 py-3 text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap text-center">إثبات الهوية</th>
+                <th className="px-4 py-3 text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap text-center">التوقيت</th>
+                <th className="px-4 py-3 text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap text-center">الملاحظات</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
@@ -60,7 +74,7 @@ const TableSection: React.FC<TableSectionProps> = ({ title, data, icon: Icon, co
                            <button onClick={() => onDelete(record.id)} className="text-slate-500 hover:text-red-600 hover:bg-red-100 p-2 rounded-full transition-all" title="حذف السجل"><Trash2 className="w-4 h-4" /></button>
                         </div>
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-slate-500 align-middle text-center" dir="ltr">{idx + 1}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[#334155] font-bold align-middle text-center" dir="ltr">{idx + 1}</td>
                       <td className="px-4 py-4 whitespace-nowrap text-black align-middle text-center" dir="ltr">{record.date}</td>
                       <td className="px-4 py-4 whitespace-nowrap text-black align-middle text-center">{dayName}</td>
                       <td className="px-4 py-4 whitespace-nowrap text-black align-middle text-center">{typeof record.location === 'string' ? record.location : ''}</td>

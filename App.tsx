@@ -12,6 +12,7 @@ import {
   Upload,
   Settings,
   ClipboardCopy,
+  ClipboardList,
   MapPin,
   User,
   Phone,
@@ -22,7 +23,9 @@ import {
   FileSpreadsheet,
   FilePenLine,
   Mail,
-  FilterX
+  FilterX,
+  Database,
+  Printer
 } from 'lucide-react';
 
 import { PREDEFINED_LOCATIONS, YEARS, CURRENT_YEAR, MONTHS } from './constants.ts';
@@ -162,6 +165,17 @@ export default function App() {
     });
     return data;
   }, [records, startDate, endDate, filterLocation, filterYear, filterMonth, sortOrder, searchTerm]);
+
+  // Combine predefined locations with any new locations found in records
+  const allLocations = useMemo(() => {
+    const customLocations = new Set<string>();
+    records.forEach(record => {
+      if (record.location && record.location.trim() && !PREDEFINED_LOCATIONS.includes(record.location)) {
+        customLocations.add(record.location);
+      }
+    });
+    return [...PREDEFINED_LOCATIONS, ...Array.from(customLocations).sort()];
+  }, [records]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -351,47 +365,109 @@ export default function App() {
   
   return (
     <div className="min-h-screen bg-transparent text-slate-800 font-sans flex flex-col" dir="rtl">
-      <header className="bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-700">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <div className="flex items-center gap-4">
-                <div className="flex items-center gap-3" dir="ltr">
-                    <div className="w-11 h-11 bg-blue-900 rounded-full flex items-center justify-center text-white font-bold text-2xl font-sans shadow-lg transform hover:scale-105 transition-transform">
-                        S
-                    </div>
-                    <div>
-                        <span className="font-extrabold text-white text-xl tracking-wide block leading-tight">SAHER</span>
-                        <span className="text-[10px] text-slate-300 tracking-widest uppercase block leading-tight">For Smart Services</span>
+      <header className="bg-[#091526] text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 print:hidden">
+        <div className="container mx-auto px-4 py-5">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 md:gap-0 relative">
+                
+                {/* Logo Section */}
+                <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-start" dir="ltr">
+                    <div className="flex items-center gap-3">
+                        <div className="relative w-16 h-16 bg-blue-900 rounded-full flex items-center justify-center text-white font-bold text-4xl font-sans shadow-2xl transform hover:scale-105 transition-transform border-2 border-slate-600">
+                           <span className="absolute top-3 right-3 flex h-3 w-3">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-3 w-3 bg-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.8)]"></span>
+                           </span>
+                            S
+                        </div>
+                        <div>
+                            <span className="font-extrabold text-white text-xl tracking-wide block leading-tight">SAHER</span>
+                            <span className="text-[10px] text-slate-300 tracking-widest uppercase block leading-tight">For Smart Services</span>
+                        </div>
                     </div>
                 </div>
-                <div>
-                  <h1 className="text-2xl font-bold">نظام تسجيل الزوار والموردين</h1>
-                  <p className="text-sm text-slate-300">شركة ساهر - مقرات شركة ساهر للخدمات الذكية</p>
+
+                {/* Text Section - Center */}
+                <div className="text-center md:absolute md:left-1/2 md:top-1/2 md:transform md:-translate-x-1/2 md:-translate-y-1/2 w-full md:w-auto order-3 md:order-none mt-2 md:mt-0">
+                  <h2 className="text-sm md:text-base font-medium text-yellow-500 border border-[#12244d] px-4 py-1 rounded-md inline-block mb-1">إدارة الخدمات العامة / قسم إدارة المرافق</h2>
+                  <h1 className="text-2xl md:text-3xl font-bold text-white mt-1">نظام تسجيل الزوار والموردين</h1>
                 </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-3 text-base text-slate-300 bg-slate-800 px-4 py-2 rounded-full">
-                <Calendar className="w-5 h-5" />
-                <span>{new Date().toLocaleDateString('ar-AE', { weekday: 'long' })}</span>
-                <span dir="ltr">{new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
-              </div>
+
+                {/* Date Section */}
+                <div className="flex items-center gap-4 w-full md:w-auto justify-center md:justify-end order-2 md:order-none">
+                  <div className="flex items-center gap-3 text-base text-slate-300 bg-slate-800 px-4 py-2 rounded-full">
+                    <Calendar className="w-5 h-5 text-yellow-500" />
+                    <span>{new Date().toLocaleDateString('ar-AE', { weekday: 'long' })}</span>
+                    <span dir="ltr">{new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                  </div>
+                </div>
+
             </div>
         </div>
       </header>
 
+      {/* Secondary Header */}
+      <div className="container mx-auto px-4 mt-16 relative z-40 print:hidden">
+        <div className="bg-[#091526] border-b-4 border-[#eab308] shadow-sm rounded-xl py-4 px-6 flex items-center justify-center gap-3">
+           <ClipboardList className="w-7 h-7 text-yellow-500" />
+           <h1 className="text-2xl font-bold text-white">
+             تسجيل الزوار والموردين
+           </h1>
+        </div>
+      </div>
+
       <main className="container mx-auto px-4 py-8 flex-grow">
         <WelcomeBanner isVisible={showWelcomeBanner} onDismiss={handleDismissBanner} />
         
-        <div className="flex gap-4 mb-6">
-          <button onClick={() => setActiveTab('form')} className={`px-6 py-3 rounded-lg font-medium shadow-sm ${activeTab === 'form' ? 'bg-blue-600 text-white' : 'bg-white'}`}>{editingId ? 'تعديل السجل' : 'تسجيل جديد'}</button>
-          <button onClick={() => { if (editingId) cancelEdit(); setActiveTab('list'); }} className={`px-6 py-3 rounded-lg font-medium shadow-sm ${activeTab === 'list' ? 'bg-blue-600 text-white' : 'bg-white'}`}>عرض السجل ({filteredRecords.length})</button>
+        <div className="flex flex-wrap justify-center gap-4 mb-6 print:hidden">
+            <button
+                onClick={() => setActiveTab('form')}
+                className={`relative overflow-hidden group h-12 px-3 rounded-xl transition-all duration-300 flex items-center justify-start gap-2 shadow-md w-64
+                ${activeTab === 'form'
+                    ? 'bg-[#334155] text-white border-b-4 border-[#eab308]'
+                    : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
+                }`}
+            >
+                <div className={`p-1.5 rounded-lg transition-colors ${activeTab === 'form' ? 'bg-white/10 text-[#eab308]' : 'bg-slate-100 text-slate-500 group-hover:bg-[#334155] group-hover:text-[#eab308]'}`}>
+                    <FilePenLine className="w-4 h-4" />
+                </div>
+                <div className="text-right">
+                    <p className={`text-[10px] font-medium mb-0 leading-none ${activeTab === 'form' ? 'text-slate-300' : 'text-slate-500'}`}>
+                        {editingId ? 'تعديل البيانات' : 'إدخال جديد'}
+                    </p>
+                    <h3 className="text-sm font-bold leading-tight mt-0.5">{editingId ? 'تعديل السجل' : 'تسجيل دخول جديد'}</h3>
+                </div>
+            </button>
+
+            <button
+                onClick={() => { if (editingId) cancelEdit(); setActiveTab('list'); }}
+                className={`relative overflow-hidden group h-12 px-3 rounded-xl transition-all duration-300 flex items-center justify-start gap-2 shadow-md w-64
+                ${activeTab === 'list'
+                    ? 'bg-[#334155] text-white border-b-4 border-[#eab308]'
+                    : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
+                }`}
+            >
+                <div className={`p-1.5 rounded-lg transition-colors ${activeTab === 'list' ? 'bg-white/10 text-[#eab308]' : 'bg-slate-100 text-slate-500 group-hover:bg-[#334155] group-hover:text-[#eab308]'}`}>
+                    <ClipboardList className="w-4 h-4" />
+                </div>
+                <div className="text-right">
+                    <p className={`text-[10px] font-medium mb-0 leading-none ${activeTab === 'list' ? 'text-slate-300' : 'text-slate-500'}`}>
+                        قاعدة البيانات
+                    </p>
+                    <h3 className="text-sm font-bold leading-tight mt-0.5">عرض السجلات ({filteredRecords.length})</h3>
+                </div>
+            </button>
         </div>
 
         {activeTab === 'form' && (
           <div className="bg-slate-50 rounded-xl shadow-lg p-6 max-w-4xl mx-auto border animate-fadeIn">
-            <h2 className="text-xl font-bold mb-6 flex items-center gap-3">
-              <FilePenLine className="w-6 h-6 text-slate-600" />
-              <span>{editingId ? 'تعديل بيانات' : 'بيانات الدخول'}</span>
-            </h2>
+            <div className="bg-[#334155] border-b-4 border-[#eab308] rounded-xl h-12 mb-6 flex items-center justify-center gap-3 shadow-md w-[800px] max-w-full mx-auto">
+                <div className="p-1.5 bg-white/10 rounded-lg">
+                    <FilePenLine className="w-5 h-5 text-[#eab308]" />
+                </div>
+                <h2 className="text-lg font-bold text-white">
+                    {editingId ? 'تعديل بيانات' : 'بيانات الدخول'}
+                </h2>
+            </div>
             {submitStatus && <div className={`mb-4 p-3 rounded-lg text-sm ${submitStatus.startsWith('success') || submitStatus === 'updated' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{ {success_offline: 'تم الحفظ بنجاح.', updated: 'تم التحديث بنجاح.', error: 'حدث خطأ.'}[submitStatus] }</div>}
             <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
               <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4">
@@ -422,7 +498,7 @@ export default function App() {
                     <MapPin className="w-4 h-4 text-slate-500" />
                     <span>اسم المقر</span>
                   </label>
-                  <input id="location" type="text" list="locations-list" name="location" value={formData.location} onChange={handleInputChange} onFocus={handleFocus} placeholder="اسم المقر" className={`${baseInputClasses} ${touched.location ? 'bg-white' : ''} ${formErrors.location ? 'border-red-500 focus:border-red-500' : ''}`} /><datalist id="locations-list">{PREDEFINED_LOCATIONS.map(l => <option key={l} value={l} />)}</datalist>
+                  <input id="location" type="text" list="locations-list" name="location" value={formData.location} onChange={handleInputChange} onFocus={handleFocus} placeholder="اسم المقر" className={`${baseInputClasses} ${touched.location ? 'bg-white' : ''} ${formErrors.location ? 'border-red-500 focus:border-red-500' : ''}`} /><datalist id="locations-list">{allLocations.map(l => <option key={l} value={l} />)}</datalist>
                   {formErrors.location && <p className="text-red-600 text-xs mt-1">{formErrors.location}</p>}
               </div>
               <div>
@@ -482,7 +558,15 @@ export default function App() {
                 </label>
                 <textarea id="notes" name="notes" rows={3} placeholder="الملاحظات" value={formData.notes} onChange={handleInputChange} onFocus={handleFocus} className={`${baseInputClasses} ${touched.notes ? 'bg-white' : ''}`} />
               </div>
-              <div className="md:col-span-2 flex gap-4"><button type="submit" className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors">{editingId ? 'تحديث' : 'حفظ'}</button>{editingId && <button type="button" onClick={cancelEdit} className="w-1/3 bg-slate-200 py-3 rounded-lg hover:bg-slate-300 transition-colors">إلغاء</button>}</div>
+              <div className="md:col-span-2 flex justify-center gap-4 mt-2">
+                <button type="submit" className="w-[800px] max-w-full h-12 bg-[#334155] border-b-4 border-[#eab308] rounded-xl shadow-md flex items-center justify-center gap-3 text-white font-bold hover:bg-[#1e293b] transition-all duration-300 group">
+                    <div className="p-1.5 bg-white/10 rounded-lg group-hover:bg-white/20 transition-colors">
+                        <Save className="w-5 h-5 text-[#eab308]" />
+                    </div>
+                    <span>{editingId ? 'تحديث' : 'حفظ'}</span>
+                </button>
+                {editingId && <button type="button" onClick={cancelEdit} className="w-32 h-12 bg-slate-200 border-b-4 border-slate-300 rounded-xl shadow-md flex items-center justify-center text-slate-700 font-bold hover:bg-slate-300 transition-all duration-300">إلغاء</button>}
+              </div>
             </form>
           </div>
         )}
@@ -490,12 +574,19 @@ export default function App() {
         {activeTab === 'list' && (
           <div className="space-y-6 animate-fadeIn">
             <div className="bg-slate-50 p-4 rounded-xl shadow-lg border">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-bold">السجلات ({filteredRecords.length})</h3>
-                <div className="flex gap-2">
-                  <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".xlsx, .xls" className="hidden" />
-                   {importStatus.status !== 'idle' && (
-                        <div className={`p-2 rounded-lg border text-xs flex items-center gap-2 ${
+              <div className="bg-[#091526] border-b-4 border-[#eab308] rounded-xl h-12 mb-6 flex items-center justify-center gap-3 shadow-md w-[800px] max-w-full mx-auto print:hidden">
+                <div className="p-1.5 bg-white/10 rounded-lg">
+                    <Database className="w-5 h-5 text-[#eab308]" />
+                </div>
+                <h2 className="text-lg font-bold text-[#eab308]">
+                    السجلات ({filteredRecords.length})
+                </h2>
+              </div>
+
+              <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-4 print:hidden">
+                <div className="flex-1">
+                     {importStatus.status !== 'idle' && (
+                        <div className={`p-2 rounded-lg border text-xs flex items-center gap-2 w-fit ${
                             importStatus.status === 'importing' ? 'bg-blue-100 text-blue-800 border-blue-200' :
                             importStatus.status === 'success' ? 'bg-green-100 text-green-800 border-green-200' :
                             'bg-red-100 text-red-800 border-red-200'
@@ -506,11 +597,17 @@ export default function App() {
                             <span>{importStatus.message}</span>
                         </div>
                     )}
-                  <button onClick={handleImportClick} disabled={!xlsxLoaded} className="px-4 py-2 rounded-lg text-sm bg-slate-600 text-white disabled:opacity-50 flex items-center gap-2"><Upload className="w-4 h-4" /> استيراد</button>
-                  <button onClick={handleExportExcel} disabled={!xlsxLoaded || filteredRecords.length === 0} className="px-4 py-2 rounded-lg text-sm bg-blue-700 text-white disabled:opacity-50 flex items-center gap-2"><Download className="w-4 h-4" /> تصدير Excel</button>
+                </div>
+
+                <div className="flex gap-2">
+                    <button onClick={() => window.print()} className="px-4 py-2 rounded-lg text-sm bg-[#334155] text-white flex items-center gap-2 hover:bg-[#1e293b] transition-colors"><Printer className="w-4 h-4" /> طباعة</button>
+                    <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".xlsx, .xls" className="hidden" />
+                    <button onClick={handleImportClick} disabled={!xlsxLoaded} className="px-4 py-2 rounded-lg text-sm bg-[#334155] text-white disabled:opacity-50 flex items-center gap-2 hover:bg-[#1e293b] transition-colors"><Upload className="w-4 h-4" /> استيراد</button>
+                    <button onClick={handleExportExcel} disabled={!xlsxLoaded || filteredRecords.length === 0} className="px-4 py-2 rounded-lg text-sm bg-[#334155] text-white disabled:opacity-50 flex items-center gap-2 hover:bg-[#1e293b] transition-colors"><Download className="w-4 h-4" /> تصدير Excel</button>
                 </div>
               </div>
-              <div className="flex flex-wrap gap-4 items-center">
+
+              <div className="flex flex-wrap gap-4 items-center justify-center print:hidden">
                 <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="بحث..." className={filterInputClasses} />
                 <select value={filterYear} onChange={(e) => setFilterYear(e.target.value)} className={filterInputClasses}><option value="">كل السنوات</option>{YEARS.map(y => <option key={y} value={y}>{y}</option>)}</select>
                 <select value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)} className={filterInputClasses}>
@@ -519,18 +616,34 @@ export default function App() {
                 </select>
                 <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className={filterInputClasses} />
                 <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={filterInputClasses} />
-                <select value={filterLocation} onChange={(e) => setFilterLocation(e.target.value)} className={filterInputClasses}><option value="">كل المقرات</option>{PREDEFINED_LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}</select>
+                <select value={filterLocation} onChange={(e) => setFilterLocation(e.target.value)} className={filterInputClasses}><option value="">كل المقرات</option>{allLocations.map(l => <option key={l} value={l}>{l}</option>)}</select>
                 <button onClick={clearFilters} className={`${filterInputClasses} bg-slate-100 hover:bg-slate-200 flex items-center gap-2`}><FilterX className="w-4 h-4 text-slate-500" /> مسح</button>
               </div>
             </div>
-            <TableSection title="سجل الزوار" data={visitorRecords} icon={Users} colorTheme="blue" onEdit={startEdit} onDelete={setRecordToDelete} sortOrder={sortOrder} onSortChange={handleSortChange} />
-            <TableSection title="سجل الموردين" data={supplierRecords} icon={Truck} colorTheme="purple" onEdit={startEdit} onDelete={setRecordToDelete} sortOrder={sortOrder} onSortChange={handleSortChange} />
-            <TableSection title="سجل الموظفين (بدون تصريح)" data={employeeRecords} icon={UserCog} colorTheme="orange" onEdit={startEdit} onDelete={setRecordToDelete} sortOrder={sortOrder} onSortChange={handleSortChange} />
+
+            {filteredRecords.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 bg-white rounded-xl border border-dashed border-slate-300 text-slate-400">
+                    <FilterX className="w-12 h-12 mb-3 opacity-50" />
+                    <p>لا توجد سجلات تطابق البحث الحالي.</p>
+                </div>
+            ) : (
+                <div className="space-y-6">
+                    {visitorRecords.length > 0 && (
+                            <TableSection title="سجل الزوار" data={visitorRecords} icon={Users} colorTheme="navy" onEdit={startEdit} onDelete={setRecordToDelete} sortOrder={sortOrder} onSortChange={handleSortChange} />
+                    )}
+                    {supplierRecords.length > 0 && (
+                            <TableSection title="سجل الموردين" data={supplierRecords} icon={Truck} colorTheme="teal" onEdit={startEdit} onDelete={setRecordToDelete} sortOrder={sortOrder} onSortChange={handleSortChange} />
+                    )}
+                    {employeeRecords.length > 0 && (
+                            <TableSection title="سجل الموظفين (بدون تصريح)" data={employeeRecords} icon={UserCog} colorTheme="purple" onEdit={startEdit} onDelete={setRecordToDelete} sortOrder={sortOrder} onSortChange={handleSortChange} />
+                    )}
+                </div>
+            )}
           </div>
         )}
       </main>
 
-      <footer className="bg-slate-900 text-slate-400 py-6 mt-auto border-t border-slate-700">
+      <footer className="bg-[#091526] text-slate-400 py-6 mt-auto border-t border-slate-700 print:hidden">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-right">
             

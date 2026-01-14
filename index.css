@@ -33,3 +33,20 @@ body {
 .animate-fadeIn {
   animation: fadeIn 0.5s ease-in-out forwards;
 }
+
+@media print {
+  @page {
+    size: landscape;
+    margin: 1cm;
+  }
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background-color: white;
+  }
+  /* Ensure full width usage in print */
+  .container {
+    max-width: none !important;
+    width: 100% !important;
+  }
+}

@@ -34,7 +34,7 @@ export interface TableSectionProps {
   title: string;
   data: Record[];
   icon: React.ComponentType<LucideProps>;
-  colorTheme: 'blue' | 'purple' | 'orange';
+  colorTheme: 'navy' | 'teal' | 'maroon' | 'brown' | 'purple' | 'orange' | 'grey';
   onEdit: (record: Record) => void;
   onDelete: (id: string) => void;
   sortOrder: SortOrder;
