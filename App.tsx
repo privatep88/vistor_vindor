@@ -365,7 +365,7 @@ export default function App() {
   
   return (
     <div className="min-h-screen bg-transparent text-slate-800 font-sans flex flex-col" dir="rtl">
-      <header className="bg-[#091526] text-white shadow-lg sticky top-0 z-50 border-b border-slate-700 print:hidden">
+      <header className="bg-[#091526] text-white shadow-lg sticky top-0 z-50 border-b-4 border-[#eab308] print:hidden">
         <div className="container mx-auto px-4 py-5">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4 md:gap-0 relative">
                 
@@ -643,7 +643,7 @@ export default function App() {
         )}
       </main>
 
-      <footer className="bg-[#091526] text-slate-400 py-6 mt-auto border-t border-slate-700 print:hidden">
+      <footer className="bg-[#091526] text-slate-400 py-6 mt-auto border-t-4 border-[#eab308] print:hidden">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-right">
             
