@@ -25,7 +25,8 @@ import {
   Mail,
   FilterX,
   Database,
-  Printer
+  Printer,
+  LayoutDashboard
 } from 'lucide-react';
 
 import { PREDEFINED_LOCATIONS, YEARS, CURRENT_YEAR, MONTHS } from './constants.ts';
@@ -33,6 +34,7 @@ import { Record, FormDataState, SubmitStatus, SortOrder } from './types.ts';
 import TableSection from './components/TableSection.tsx';
 import ConfirmationModal from './components/ConfirmationModal.tsx';
 import WelcomeBanner from './components/WelcomeBanner.tsx';
+import DashboardView from './components/DashboardView.tsx';
 
 declare global {
   interface Window {
@@ -76,7 +78,7 @@ const demoRecords: Record[] = [
 export default function App() {
   const [loading, setLoading] = useState<boolean>(true);
   const [records, setRecords] = useState<Record[]>([]);
-  const [activeTab, setActiveTab] = useState<'form' | 'list'>('form'); 
+  const [activeTab, setActiveTab] = useState<'form' | 'list' | 'dashboard'>('form'); 
   const [xlsxLoaded, setXlsxLoaded] = useState<boolean>(false);
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>(null); 
   const [editingId, setEditingId] = useState<string | null>(null); 
@@ -456,6 +458,25 @@ export default function App() {
                     <h3 className="text-sm font-bold leading-tight mt-0.5">عرض السجلات ({filteredRecords.length})</h3>
                 </div>
             </button>
+
+            <button
+                onClick={() => { if (editingId) cancelEdit(); setActiveTab('dashboard'); }}
+                className={`relative overflow-hidden group h-12 px-3 rounded-xl transition-all duration-300 flex items-center justify-start gap-2 shadow-md w-64
+                ${activeTab === 'dashboard'
+                    ? 'bg-[#334155] text-white border-b-4 border-[#eab308]'
+                    : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
+                }`}
+            >
+                <div className={`p-1.5 rounded-lg transition-colors ${activeTab === 'dashboard' ? 'bg-white/10 text-[#eab308]' : 'bg-slate-100 text-slate-500 group-hover:bg-[#334155] group-hover:text-[#eab308]'}`}>
+                    <LayoutDashboard className="w-4 h-4" />
+                </div>
+                <div className="text-right">
+                    <p className={`text-[10px] font-medium mb-0 leading-none ${activeTab === 'dashboard' ? 'text-slate-300' : 'text-slate-500'}`}>
+                        لوحة المعلومات
+                    </p>
+                    <h3 className="text-sm font-bold leading-tight mt-0.5">الإحصائيات والتقارير</h3>
+                </div>
+            </button>
         </div>
 
         {activeTab === 'form' && (
@@ -609,7 +630,10 @@ export default function App() {
 
               <div className="flex flex-wrap gap-4 items-center justify-center print:hidden">
                 <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="بحث..." className={filterInputClasses} />
-                <select value={filterYear} onChange={(e) => setFilterYear(e.target.value)} className={filterInputClasses}><option value="">كل السنوات</option>{YEARS.map(y => <option key={y} value={y}>{y}</option>)}</select>
+                <select value={filterYear} onChange={(e) => setFilterYear(e.target.value)} className={filterInputClasses}>
+                  <option value="">كل السنوات</option>
+                  {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+                </select>
                 <select value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)} className={filterInputClasses}>
                   <option value="">كل الشهور</option>
                   {MONTHS.map(m => <option key={m.value} value={m.value}>{m.name}</option>)}
@@ -640,6 +664,10 @@ export default function App() {
                 </div>
             )}
           </div>
+        )}
+
+        {activeTab === 'dashboard' && (
+            <DashboardView records={records} />
         )}
       </main>
 
@@ -684,7 +712,7 @@ export default function App() {
           </div>
           
           <div className="border-t border-slate-700 mt-6 pt-4 text-center">
-            <p className="text-sm mb-1 text-white">اعداد وتصميم / خالد الجفري</p>
+            <p className="text-sm mb-3 text-white">اعداد وتصميم / خالد الجفري</p>
             <p className="text-xs">جميع الحقوق محفوظة لـ © 2026 SAHER FOR SMART SERVICES</p>
           </div>
         </div>
