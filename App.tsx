@@ -96,11 +96,28 @@ export default function App() {
   const [showWelcomeBanner, setShowWelcomeBanner] = useState<boolean>(false);
   const isInitialMount = useRef(true);
 
+  // Helper to get local date string (YYYY-MM-DD)
+  const getLocalDateString = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const now = new Date();
   const initialFormState: FormDataState = {
-    type: 'visitor', year: CURRENT_YEAR, location: '', name: '', phone: '',
-    department: '', purpose: '', date: new Date().toISOString().split('T')[0],
-    timeIn: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
-    timeOut: '', idType: 'الهوية الوطنية', notes: ''
+    type: 'visitor', 
+    year: now.getFullYear(), // Use current system year dynamically
+    location: '', 
+    name: '', 
+    phone: '',
+    department: '', 
+    purpose: '', 
+    date: getLocalDateString(now), // Use local date
+    timeIn: now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+    timeOut: '', 
+    idType: 'الهوية الوطنية', 
+    notes: ''
   };
   const [formData, setFormData] = useState<FormDataState>(initialFormState);
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
@@ -180,8 +197,23 @@ export default function App() {
   }, [records]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-    if (formErrors[e.target.name]) setFormErrors(prev => ({...prev, [e.target.name]: ''}));
+    const { name, value } = e.target;
+    
+    setFormData(prev => {
+        const newData = { ...prev, [name]: value };
+        
+        // Auto-update Year if Date changes
+        if (name === 'date' && value) {
+            const dateYear = new Date(value).getFullYear();
+            if (!isNaN(dateYear)) {
+                newData.year = dateYear;
+            }
+        }
+        
+        return newData;
+    });
+
+    if (formErrors[name]) setFormErrors(prev => ({...prev, [name]: ''}));
   };
   
   const handleFocus = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -212,7 +244,7 @@ export default function App() {
     e.preventDefault();
     if (!validateForm()) return;
 
-    const now = new Date();
+    const currentSubmitTime = new Date();
     let finalRecord: Record;
 
     if (editingId) {
@@ -220,14 +252,14 @@ export default function App() {
         finalRecord = {
             ...formData,
             id: editingId,
-            createdAt: originalRecord?.createdAt || now,
-            lastModified: now
+            createdAt: originalRecord?.createdAt || currentSubmitTime,
+            lastModified: currentSubmitTime
         };
     } else {
         finalRecord = {
             ...formData,
-            id: `local_${now.getTime()}`,
-            createdAt: now
+            id: `local_${currentSubmitTime.getTime()}`,
+            createdAt: currentSubmitTime
         };
     }
     
