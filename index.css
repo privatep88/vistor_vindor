@@ -34,6 +34,20 @@ body {
   animation: fadeIn 0.5s ease-in-out forwards;
 }
 
+/* News Ticker Animation */
+@keyframes ticker {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-150%); }
+}
+
+.animate-ticker {
+  animation: ticker 120s linear infinite;
+}
+
+.animate-ticker:hover {
+  animation-play-state: paused;
+}
+
 @media print {
   @page {
     size: landscape;

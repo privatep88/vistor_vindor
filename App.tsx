@@ -26,7 +26,10 @@ import {
   FilterX,
   Database,
   Printer,
-  LayoutDashboard
+  LayoutDashboard,
+  Trophy,
+  Bell,
+  Activity
 } from 'lucide-react';
 
 import { PREDEFINED_LOCATIONS, YEARS, CURRENT_YEAR, MONTHS } from './constants.ts';
@@ -122,6 +125,40 @@ export default function App() {
   const [formData, setFormData] = useState<FormDataState>(initialFormState);
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
   const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
+
+  // Quick Stats Calculations
+  const quickStats = useMemo(() => {
+    if (records.length === 0) return { last: 'لا يوجد', today: 0, topLoc: 'لا يوجد', suppliersToday: 0, employeesToday: 0 };
+
+    // 1. Last Registered Visitor (Based on Date and Time)
+    const latestRecord = [...records].sort((a, b) => {
+        const timeA = a.timeIn || '00:00';
+        const timeB = b.timeIn || '00:00';
+        const dateA = new Date(`${a.date}T${timeA}`);
+        const dateB = new Date(`${b.date}T${timeB}`);
+        return dateB.getTime() - dateA.getTime();
+    })[0];
+    
+    const last = latestRecord ? `${latestRecord.name} (${latestRecord.timeIn})` : 'لا يوجد';
+
+    // 2. Today's Statistics
+    const todayStr = getLocalDateString(new Date());
+    const todayRecords = records.filter(r => r.date === todayStr);
+    const today = todayRecords.length;
+    const suppliersToday = todayRecords.filter(r => r.type === 'supplier').length;
+    const employeesToday = todayRecords.filter(r => r.type === 'employee').length;
+
+    // 3. Most Active Location
+    const locCounts: { [key: string]: number } = {};
+    records.forEach(r => {
+         const loc = r.location || 'غير محدد';
+         locCounts[loc] = (locCounts[loc] || 0) + 1;
+    });
+    const topLocEntry = Object.entries(locCounts).sort((a, b) => b[1] - a[1])[0];
+    const topLoc = topLocEntry ? topLocEntry[0] : 'لا يوجد';
+
+    return { last, today, topLoc, suppliersToday, employeesToday };
+  }, [records]);
 
   useEffect(() => {
     loadScript("https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js")
@@ -450,6 +487,73 @@ export default function App() {
       </div>
 
       <main className="container mx-auto px-4 py-8 flex-grow">
+        
+        {/* Quick Info Bar - News Ticker Style */}
+        <div className="mb-8 print:hidden">
+            <div className="bg-[#091526] rounded-lg shadow-xl border-y-2 border-[#eab308] h-12 flex items-center relative overflow-hidden group">
+                
+                {/* Fixed Label */}
+                <div className="bg-[#eab308] h-full px-5 flex items-center gap-2 z-20 relative shadow-[4px_0_15px_rgba(0,0,0,0.3)]">
+                     <Bell className="w-4 h-4 text-[#091526] animate-pulse" />
+                     <span className="text-[#091526] font-extrabold text-sm whitespace-nowrap">آخر المستجدات</span>
+                     {/* Decorative skew */}
+                     <div className="absolute top-0 left-0 w-4 h-full bg-[#eab308] -skew-x-12 -translate-x-2"></div>
+                </div>
+
+                {/* Scrolling Area */}
+                <div className="flex-1 h-full relative flex items-center overflow-hidden bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]">
+                     <div className="absolute inset-0 bg-[#091526]/80"></div>
+                     {/* The Ticker Track */}
+                     <div className="absolute flex items-center gap-12 whitespace-nowrap animate-ticker w-max right-0 z-10 px-4"> 
+                         {/* Duplicating content 3 times to ensure it covers screens and loops decently for visual effect */}
+                         {[1, 2, 3].map((_, i) => (
+                             <React.Fragment key={i}>
+                                <div className="flex items-center gap-2">
+                                    <div className="p-1 rounded bg-white/10 text-[#eab308] border border-white/5"><User className="w-3 h-3" /></div>
+                                    <span className="text-slate-400 text-xs font-medium">آخر زائر:</span>
+                                    <span className="text-white font-bold text-sm" dir="ltr">{quickStats.last}</span>
+                                </div>
+
+                                <span className="text-[#eab308]/30">|</span>
+
+                                <div className="flex items-center gap-2">
+                                    <div className="p-1 rounded bg-white/10 text-[#eab308] border border-white/5"><Activity className="w-3 h-3" /></div>
+                                    <span className="text-slate-400 text-xs font-medium">زوار اليوم:</span>
+                                    <span className="text-white font-bold text-sm">{quickStats.today} <span className="text-[10px] font-normal text-slate-500">سجل</span></span>
+                                </div>
+
+                                <span className="text-[#eab308]/30">|</span>
+
+                                <div className="flex items-center gap-2">
+                                    <div className="p-1 rounded bg-white/10 text-[#eab308] border border-white/5"><Truck className="w-3 h-3" /></div>
+                                    <span className="text-slate-400 text-xs font-medium">موردين اليوم:</span>
+                                    <span className="text-white font-bold text-sm">{quickStats.suppliersToday}</span>
+                                </div>
+
+                                <span className="text-[#eab308]/30">|</span>
+
+                                <div className="flex items-center gap-2">
+                                    <div className="p-1 rounded bg-white/10 text-[#eab308] border border-white/5"><UserCog className="w-3 h-3" /></div>
+                                    <span className="text-slate-400 text-xs font-medium">موظفين اليوم:</span>
+                                    <span className="text-white font-bold text-sm">{quickStats.employeesToday}</span>
+                                </div>
+
+                                <span className="text-[#eab308]/30">|</span>
+
+                                <div className="flex items-center gap-2">
+                                    <div className="p-1 rounded bg-white/10 text-[#eab308] border border-white/5"><Trophy className="w-3 h-3" /></div>
+                                    <span className="text-slate-400 text-xs font-medium">المقر الأنشط:</span>
+                                    <span className="text-white font-bold text-sm">{quickStats.topLoc}</span>
+                                </div>
+
+                                <span className="text-[#eab308]/30">|</span>
+                             </React.Fragment>
+                         ))}
+                     </div>
+                </div>
+            </div>
+        </div>
+
         <WelcomeBanner isVisible={showWelcomeBanner} onDismiss={handleDismissBanner} />
         
         <div className="flex flex-wrap justify-center gap-4 mb-6 print:hidden">
