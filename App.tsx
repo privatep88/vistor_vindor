@@ -211,12 +211,23 @@ export default function App() {
       data = data.filter(record => Object.values(record).some(val => String(val).toLowerCase().includes(lowerSearch)));
     }
     data.sort((a, b) => {
-      const dateA = new Date(`${a.date}T${a.timeIn}`);
-      const dateB = new Date(`${b.date}T${b.timeIn}`);
-      const timeA = dateA.getTime(); const timeB = dateB.getTime();
-      const aIsInvalid = isNaN(timeA); const bIsInvalid = isNaN(timeB);
+      // Ensure robust sorting by Date > Month > Year (descending) by handling missing times
+      const timeAStr = a.timeIn || '00:00';
+      const timeBStr = b.timeIn || '00:00';
+      
+      const dateA = new Date(`${a.date}T${timeAStr}`);
+      const dateB = new Date(`${b.date}T${timeBStr}`);
+      
+      const timeA = dateA.getTime();
+      const timeB = dateB.getTime();
+      
+      const aIsInvalid = isNaN(timeA);
+      const bIsInvalid = isNaN(timeB);
+      
       if (aIsInvalid && bIsInvalid) return 0;
-      if (aIsInvalid) return 1; if (bIsInvalid) return -1;
+      if (aIsInvalid) return 1;
+      if (bIsInvalid) return -1;
+      
       return sortOrder === 'asc' ? timeA - timeB : timeB - timeA;
     });
     return data;
